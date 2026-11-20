@@ -1,0 +1,57 @@
+
+name: Windows Virtual Environment
+
+on:
+  workflow_dispatch:
+
+jobs:
+  windows-pc:
+    runs-on: windows-latest
+    timeout-minutes: 34
+
+    steps:
+      - name: Configure Windows
+        shell: pwsh
+        run: |
+          Write-Host "=== WINDOWS VIRTUAL ==="
+          Write-Host "Preparing Windows environment..."
+
+          $computer = Get-ComputerInfo
+
+          Write-Host "System: $($computer.WindowsProductName)"
+          Write-Host "Version: $($computer.WindowsVersion)"
+          Write-Host "Computer: $env:COMPUTERNAME"
+
+      - name: Verify Environment
+        shell: pwsh
+        run: |
+          Write-Host "Checking Windows services..."
+
+          Get-Service |
+            Where-Object {
+              $_.Status -eq "Running"
+            } |
+            Select-Object -First 15 Name, Status
+
+      - name: Maintain Session
+        shell: pwsh
+        run: |
+          $duration = 2000
+          $start = Get-Date
+          $end = $start.AddSeconds($duration)
+
+          Write-Host "Session started: $start"
+          Write-Host "Duration: 2000 seconds"
+
+          while ((Get-Date) -lt $end) {
+            $elapsed = [int]((Get-Date) - $start).TotalSeconds
+            $remaining = $duration - $elapsed
+
+            Write-Host "Windows active"
+            Write-Host "Elapsed: $elapsed seconds"
+            Write-Host "Remaining: $remaining seconds"
+
+            Start-Sleep -Seconds 30
+          }
+
+          Write-Host "Session finished!"
